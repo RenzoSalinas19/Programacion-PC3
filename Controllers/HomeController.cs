@@ -6,21 +6,42 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Programacion_PC3.Models;
+using Programacion_PC3.Data;
 
 namespace Programacion_PC3.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+         public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+       public IActionResult Index()
         {
-            return View();
+            List<Producto> lista= Listar();
+            return View(lista);
+        }
+
+        public List<Producto> Listar()
+        {
+            var listaProductos= _context.Productos.ToList();
+            List<Producto> lista= new List<Producto>();
+            DateTime limitDate= DateTime.Today.AddDays(-7);
+
+            foreach(Producto producto in listaProductos)
+            {
+                if(DateTime.Compare(producto.addDate,limitDate)>=0)
+                {
+                    lista.Add(producto);
+                }
+            }
+
+            return(lista);
         }
 
         public IActionResult Privacy()
